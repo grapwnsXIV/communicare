@@ -1,4 +1,4 @@
-function ReviewReport({ report, onBack, onSubmit }) {
+function ReviewReport({ report, onBack, onSubmit, isSubmitting }) {
     const bodyPartLabels = {
         head: 'Head',
         chest: 'Chest',
@@ -64,8 +64,9 @@ function ReviewReport({ report, onBack, onSubmit }) {
                     <button
                         type="button"
                         className="primary-button"
-                        onClick={onSubmit}>
-                            Submit Report
+                        onClick={onSubmit}
+                        disabled={isSubmitting}>
+                            {isSubmitting ? 'Submitting...' : 'Submit Report'}
                         </button>
             </div>
         </section>

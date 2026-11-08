@@ -9,7 +9,10 @@ const PORT = process.env.PORT || 4000;
 
 // Allow React frontend to communicate with Express
 app.use(cors({
-    origin: "http://localhost:5173"
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174"
+  ]
 }));
 
 // Parse JSON request bodies

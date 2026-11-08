@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 
 import Navigation from './components/Navigation';
@@ -6,6 +7,9 @@ import BodyPartSelector from './components/BodyPartSelector';
 import SymptomSelector from './components/SymptomSelector';
 import SeveritySelector from './components/SeveritySelector';
 import ReviewReport from './pages/ReviewReport';
+import ReportSuccess from './pages/ReportSuccess';
+
+import { submitSymptomReport } from './services/api';
 
 import './App.css';
 
@@ -16,7 +20,12 @@ function App() {
   const [symptomType, setSymptomType] = useState('');
   const [severity, setSeverity] = useState('');
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
   function goHome() {
+    if (isSubmitting) return;
+
     setCurrentPage('home');
   }
 
@@ -24,6 +33,7 @@ function App() {
     setBodyPart('');
     setSymptomType('');
     setSeverity('');
+    setSubmitError('');
     setCurrentPage('where');
   }
 
@@ -41,7 +51,39 @@ function App() {
 
   function continueFromSeverity() {
     if (severity) {
-      setCurrentPage('review')
+      setCurrentPage('review');
+    }
+  }
+
+  // Submit the finished report to Express.
+  async function handleSubmitReport() {
+    if (!bodyPart || !symptomType || !severity || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const report = {
+        bodyPart,
+        symptomType,
+        severity
+      };
+
+      const result = await submitSymptomReport(report);
+
+      console.log('Saved report:', result);
+
+      setCurrentPage('success');
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to submit report'
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -81,18 +123,25 @@ function App() {
         )}
 
         {currentPage === 'review' && (
-          <ReviewReport
-            report={{ bodyPart, symptomType, severity }}
-            onBack={() => setCurrentPage('severity')}
-            onSubmit={() => {
-              console.log('Report submitted:', {
-                bodyPart,
-                symptomType,
-                severity
-              });
-            }}
-        />
-      )}
+          <>
+            <ReviewReport
+              report={{ bodyPart, symptomType, severity }}
+              onBack={() => setCurrentPage('severity')}
+              onSubmit={handleSubmitReport}
+              isSubmitting={isSubmitting}
+            />
+
+            {submitError && (
+              <p role="alert" className="submit-error">
+                {submitError}
+              </p>
+            )}
+          </>
+        )}
+
+        {currentPage === 'success' && (
+          <ReportSuccess onHome={goHome} />
+        )}
       </main>
     </>
   );

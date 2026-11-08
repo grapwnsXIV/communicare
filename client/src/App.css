@@ -238,3 +238,46 @@ select:focus-visible {
 .review-row:last-child {
   border-bottom: none;
 }
+
+/* Submission feedback */
+.submit-error {
+  color: #b91c1c;
+  text-align: center;
+  margin-top: 15px;
+}
+
+/* Success */
+.success-screen {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 25px;
+  border-radius: 50%;
+  background: #d1fae5;
+  color: #047857;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+}
+
+.success-screen h1 {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.success-screen p {
+  color: #64748b;
+  margin-bottom: 30px;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
