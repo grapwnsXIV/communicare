@@ -50,6 +50,7 @@ async function save(report) {
             body_part AS bodyPart,
             symptom_type AS symptomType,
             severity,
+            status,
             created_at AS createdAt
          FROM symptom_reports
          WHERE id = ?`,
@@ -67,6 +68,7 @@ async function getAll() {
             body_part AS bodyPart,
             symptom_type AS symptomType,
             severity,
+            status,
             created_at AS createdAt
          FROM symptom_reports
          ORDER BY id DESC`
@@ -75,4 +77,37 @@ async function getAll() {
     return rows;
 }
 
-module.exports = { save, getAll };
+// Retrieve one symptom report by ID.
+async function getById(id) {
+    const rows = await pool.query(
+        `SELECT
+            id,
+            body_part AS bodyPart,
+            symptom_type AS symptomType,
+            severity,
+            status,
+            created_at AS createdAt
+            FROM symptom_reports
+            WHERE id = ?`, // filters the results to requested report ID
+            [id]
+    );
+
+    return rows[0] || null; // return the matching report if exists. Return null if no report matches that ID.
+}
+
+// Update status of existing symptom report. Returns the updated report or null if not found.
+async function updateStatus(id, status) {
+    const result = await pool.query(
+        `UPDATE symptom_reports
+        SET status = ?
+        WHERE id = ?`,
+        [status, id]
+    );
+
+    if (Number(result.affectedRows) === 0) {
+        return null;
+    }
+    return await getById(id);
+}
+
+module.exports = { save, getAll, getById, updateStatus };
