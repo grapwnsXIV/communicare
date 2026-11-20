@@ -77,6 +77,69 @@ async function getAll() {
     return rows;
 }
 
+/**
+ * Retrieve symptom reports using filters
+ * supported filters:
+ * status, severity, bodypart
+ *  
+ */
+async function getFilteredReports(filters = {}, options = {}) {
+    let sql = `
+        SELECT
+            id,
+            body_part AS bodyPart,
+            symptom_type AS symptomType,
+            severity,
+            status,
+            created_at AS createdAt
+        FROM symptom_reports
+        WHERE 1 = 1
+    `;
+
+    const params = [];
+
+    if (filters.status) {
+        sql += ` AND status = ?`;
+        params.push(filters.status);
+    }
+
+    if (filters.severity) {
+        sql += ` AND severity = ?`;
+        params.push(filters.severity);
+    }
+
+    if (filters.bodyPart) {
+        sql += ` AND body_part = ?`;
+        params.push(filters.bodyPart);
+    }
+
+    // pagination settings
+
+    // This preserves existing filters while adding pagination.
+    const page = options.page === undefined ? 1 : Number(options.page);
+    const limit = options.limit === undefined ? 10 : Number(options.limit);
+
+    if (
+        !Number.isSafeInteger(page) ||
+        page < 1 ||
+        !Number.isSafeInteger(limit) ||
+        limit < 1 ||
+        limit > 100
+    ) {
+        throw new RangeError('Invalid pagination settings');
+    }
+
+    const offset = (page - 1) * limit;
+
+    if (!Number.isSafeInteger(offset)) {
+        throw new RangeError('Pagination offset is too large');
+    }
+
+    sql += ` ORDER BY id DESC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+    return await pool.query(sql, params);
+}
+
 // Retrieve one symptom report by ID.
 async function getById(id) {
     const rows = await pool.query(
@@ -110,4 +173,4 @@ async function updateStatus(id, status) {
     return await getById(id);
 }
 
-module.exports = { save, getAll, getById, updateStatus };
+module.exports = { save, getAll, getById, updateStatus, getFilteredReports };
