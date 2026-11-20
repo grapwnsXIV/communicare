@@ -81,7 +81,6 @@ async function getAll() {
  * Retrieve symptom reports using filters
  * supported filters:
  * status, severity, bodypart
- *  
  */
 async function getFilteredReports(filters = {}, options = {}) {
     let sql = `
@@ -140,6 +139,73 @@ async function getFilteredReports(filters = {}, options = {}) {
     return await pool.query(sql, params);
 }
 
+// Count symptom reports using optional filters
+async function countFilteredReports(filters = {}) {
+    let sql = `
+        SELECT COUNT(*) AS total
+        FROM symptom_reports
+        WHERE 1 = 1
+        `;
+
+    const params = [];
+
+    if (filters.status) {
+        sql += ` AND status = ?`;
+        params.push(filters.status);
+    }
+
+    if (filters.severity) {
+        sql += ` AND severity = ?`;
+        params.push(filters.severity);
+    }
+
+    if (filters.bodyPart) {
+        sql += ` AND body_part = ?`;
+        params.push(filters.bodyPart);
+    }
+
+    const rows = await pool.query(sql, params);
+
+    return Number(rows[0].total);
+}
+
+async function getPaginatedReports(filters = {}, options = {}) {
+    const page = options.page === undefined
+        ? 1 : Number(options.page);
+
+    const limit = options.limit === undefined
+        ? 10 : Number(options.limit);
+
+        if (
+            !Number.isSafeInteger(page) ||
+            page < 1 ||
+            !Number.isSafeInteger(limit) ||
+            limit < 1 ||
+            limit > 100
+        ) {
+            throw new RangeError('Invalid pagination settings');
+        }
+    const offset = (page - 1) * limit;
+
+    if (!Number.isSafeInteger(offset)) {
+        throw new RangeError('Pagination offset is too large');
+    }
+
+    const reports = await getFilteredReports(filters, { page, limit });
+    const total = await countFilteredReports(filters);
+
+    return {
+        reports,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit)
+        }
+    };
+}
+
+
 // Retrieve one symptom report by ID.
 async function getById(id) {
     const rows = await pool.query(
@@ -173,4 +239,4 @@ async function updateStatus(id, status) {
     return await getById(id);
 }
 
-module.exports = { save, getAll, getById, updateStatus, getFilteredReports };
+module.exports = { save, getAll, getById, updateStatus, getFilteredReports, countFilteredReports, getPaginatedReports };
