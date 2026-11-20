@@ -23,6 +23,7 @@ function App() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [savedReport, setSavedReport] = useState(null);
 
   function goHome() {
     if (isSubmitting) return;
@@ -35,6 +36,7 @@ function App() {
     setSymptomType('');
     setSeverity('');
     setSubmitError('');
+    setSavedReport(null);
     setCurrentPage('where');
   }
 
@@ -74,9 +76,12 @@ function App() {
 
       const result = await submitSymptomReport(report);
 
-      console.log('Saved report:', result);
-
+      if (!result.report) {
+        throw new Error('Server did not return the saved report');
+      }
+      setSavedReport(result.report);
       setCurrentPage('success');
+
     } catch (error) {
       setSubmitError(
         error instanceof Error
@@ -146,7 +151,10 @@ function App() {
         )}
 
         {currentPage === 'success' && (
-          <ReportSuccess onHome={goHome} />
+          <ReportSuccess 
+            report={savedReport}
+            onHome={goHome}
+             />
         )}
       </main>
     </>
