@@ -8,6 +8,7 @@ import SymptomSelector from './components/SymptomSelector';
 import SeveritySelector from './components/SeveritySelector';
 import ReviewReport from './pages/ReviewReport';
 import ReportSuccess from './pages/ReportSuccess';
+import ProfessionalReadout from './pages/ProfessionalReadout';
 
 import { submitSymptomReport } from './services/api';
 
@@ -93,8 +94,13 @@ function App() {
 
       <main className="app-content">
         {currentPage === 'home' && (
-          <Home onStart={startReport} />
+        <Home
+          onStart={startReport}
+          onOpenReadout={() => setCurrentPage('readout')}
+        />
         )}
+
+        {currentPage === 'readout' && <ProfessionalReadout />}
 
         {currentPage === 'where' && (
           <BodyPartSelector
