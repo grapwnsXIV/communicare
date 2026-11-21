@@ -9,6 +9,7 @@ import SeveritySelector from './components/SeveritySelector';
 import ReviewReport from './pages/ReviewReport';
 import ReportSuccess from './pages/ReportSuccess';
 import ProfessionalReadout from './pages/ProfessionalReadout';
+import ClinicianLogin from './pages/ClinicianLogin';
 
 import { submitSymptomReport } from './services/api';
 
@@ -90,7 +91,9 @@ function App() {
 
   return (
     <>
-      <Navigation onHome={goHome} />
+      <Navigation onHome={goHome} 
+        onClinicianPortal={() => setCurrentPage('clinician-login')}
+      />
 
       <main className="app-content">
         {currentPage === 'home' && (
@@ -100,6 +103,11 @@ function App() {
         />
         )}
 
+        {currentPage === 'clinician-login' && (
+          <ClinicianLogin
+            onPreviewReports={() => setCurrentPage('readout')}
+          />
+        )}
         {currentPage === 'readout' && <ProfessionalReadout />}
 
         {currentPage === 'where' && (

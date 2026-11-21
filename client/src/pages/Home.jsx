@@ -11,14 +11,6 @@ function Home({ onStart, onOpenReadout }) {
                 >
                     Report Symptoms
                 </button>
-
-            <button
-                type="button"
-                className="secondary-button"
-                onClick={onOpenReadout}
-                >
-                View Symptom Reports
-                </button>
         </section>
     );
 }
