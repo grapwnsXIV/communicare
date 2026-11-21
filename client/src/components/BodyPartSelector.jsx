@@ -1,3 +1,5 @@
+import bodyOutline from '../assets/bodyOutline.svg?url';
+
 const bodyParts = [
     { value: 'head', label: 'Head' },
     { value: 'chest', label: 'Chest' },
@@ -17,7 +19,10 @@ function BodyPartSelector({ selected, onSelect, onNext}) {
     return (
         <section className="selection-section">
             <h1>Where?</h1>
+
             <div className="selection-grid">
+                <img src={bodyOutline} alt="Body Outline for Reporting Patient's Area of Pain" width="600" height="600" />
+                {/*
                 {bodyParts.map((part) => (
                     <button
                         key={part.value}
@@ -30,6 +35,7 @@ function BodyPartSelector({ selected, onSelect, onNext}) {
                         {part.label}
                     </button>
                 ))}
+               */ }
             </div>
 
             <button
